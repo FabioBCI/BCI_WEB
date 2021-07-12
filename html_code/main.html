@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>BCI Creator</title>        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+        <link rel="stylesheet" type="text/css" href="../bootstrap-4.4.1-dist/css/bootstrap.css"> 
+        <link href="../bootstrap-4.4.1-dist/css/animate.min.css" rel="stylesheet">
+        <link href="../bootstrap-4.4.1-dist/css/bootstrap-dropdownhover.min.css" rel="stylesheet"> 
+        <link href="../bootstrap-4.4.1-dist/css/bootstrap.css" rel="stylesheet"> 
+        <script src="../Chart.js/Chart.js"></script>
+        <script src="../jquery-3.4.1.min.js"></script>        
+        <script src="../bootstrap-4.4.1-dist/js/bootstrap.bundle.js"></script> 
+        <script src="../bootstrap-4.4.1-dist/js/bootstrap.bundle.min.js"></script>  
+        <script src="../javascript/pipeline.js"></script>
+        <script src="../javascript/block.js"></script> 
+        <script src="../javascript/linea.js"></script>
+        <script src="../javascript/block_adquisition.js"></script>
+        <script src="../javascript/block_bci_competition.js"></script>
+        <script src="../javascript/random_eeg.js"></script>   
+        <script src="../javascript/block_band_pas.js"></script>
+        <script src="../javascript/block_filter_high.js"></script>
+        <script src="../javascript/block_filter_low.js"></script>      
+        <script src="../javascript/block_normalizar.js"></script>   
+        <script src="../javascript/block_hjorth.js"></script>  
+        <script src="../javascript/block_lda.js"></script>  
+        <script src="../javascript/block_k_fold.js"></script>  
+        <script src="../javascript/block_cut_trial.js"></script>
+        <script src="../javascript/block_select_labels.js"></script>
+        <script src="../javascript/block_statistics.js"></script>
+
+        
+        <!--<script src="../javascript/fabric.js"></script> -->
+
+        <!-- Cargar React. -->
+        <!-- Nota: cuando se despliegue, reemplazar "development.js" con "production.min.js". -->
+        <!--<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>-->
+        <style type="text/css">
+            body{
+                background-color:rgb(46, 46, 46);
+            }
+
+            canvas{
+                border:1px solid #5f5d5d;
+                background-color: #585757;               
+            }
+
+            #canvasBox1,#canvasBox2{
+            border: 0px solid #585757;
+                width: 375px;
+                height: 375px;
+                margin: 20px;
+            float: left;
+            }
+
+                       
+            .dropdown-submenu {
+                position: relative;
+                }
+                .pointer         { cursor: pointer; }
+
+                .dropdown-submenu .dropdown-menu {
+                top: 0;
+                left: 100%;
+                margin-top: -1px;
+                }
+                .dropdown-submenu:hover>.dropdown-menu {
+                    display:block;
+                }
+                .dropdown-submenu>a:after {
+                    display:block;
+                    content:" ";
+                    float:right;
+                    width:0;
+                    height:0;
+                    border-color:transparent;
+                    border-style:solid;
+                    border-width:5px 0 5px 5px;
+                    border-left-color:#cccccc;
+                    margin-top:5px;
+                    margin-right:-10px;
+                }
+
+                .box01{
+                    width: auto;
+                    height: 400px;    
+                    margin-top:1px;                                          
+                    background: rgb(46, 46, 46);
+                    color: black;
+                    display: flex;
+                    align-content: flex-start;
+                    }
+
+                .wrapper_chart
+                {
+                    width: auto; height: 750px;
+                }
+                .pop_chart {width: 750px;}
+                #wrapper_trials {width: 700px; height: 550px;}
+                #wrapper_chart_info {width: 350px; height: 350px;}
+
+                #ctxmenu {
+                    position: fixed;
+                    background:ghostwhite;
+                    color: black;
+                    cursor: pointer;
+                    border: 1px black solid
+                }
+
+                #ctxmenu > p {
+                    padding: 0 1rem;
+                    margin: 0
+                }
+
+                #ctxmenu > p:hover {
+                    background: rgb(46, 46, 46);
+                    color: ghostwhite
+                }
+        </style>
+    </head>
+    <body>
+        <div id="root"></div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">BCI Creator</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">               
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownEEG" href="#" id="navbarDropdownFeatures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Base datos EEG
+                    </a>
+                    <ul class="dropdown-menu">                      
+                      <li class="dropdown-submenu">
+                          <a class="dropdown-item" tabindex="-1" href="#">BCI Competition</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" onClick="addBlock('bci_ii')" tabindex="-1" href="#">Competition</a></li>
+                            </ul>                            
+                            <li class="dropdown-item">
+                                <a class="dropdown-item" onClick="addBlock('random')" tabindex="-1" href="#">Random</a>   
+                            </li>                                
+                      </li>
+                    </ul>                              
+                </li>
+
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownEEG" href="#" id="navbarDropdownFeatures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Preprocesado
+                      </a>
+                      <ul class="dropdown-menu">                      
+                        <li class="dropdown-submenu">                           
+                            <a class="dropdown-item" tabindex="-1" href="#">Filtros</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" onClick="addBlock('band_pas')" tabindex="-1" href="#">Pasa banda</a></li>
+                                <li><a class="dropdown-item" onClick="addBlock('high_pas')" tabindex="-1" href="#">Pasa alto</a></li>
+                                <li><a class="dropdown-item" onClick="addBlock('low_pas')" tabindex="-1" href="#">Pasa bajo</a></li>
+                                <li><a class="dropdown-item" onClick="addBlock()" tabindex="-1" href="#">CAR</a></li>
+                            </ul>  
+                            <li><a class="dropdown-item" onClick="addBlock('normalizar')" tabindex="-1" href="#">Normalizar</a></li> 
+                            <li><a class="dropdown-item" onClick="addBlock('cut_trial')" tabindex="-1" href="#">Cortar trial</a></li>
+                            <li><a class="dropdown-item" onClick="addBlock('select_label')" tabindex="-1" href="#">Seleccionar clases</a></li>          
+                        </li>                     
+                      
+                      </ul>    
+                </li>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">               
+                      <li class="nav-item dropdown">
+                          <a class="nav-link dropdown-toggle" id="navbarDropdownEEG" href="#" id="navbarDropdownFeatures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                           Extracción caracteristicas
+                          </a>
+                          <ul class="dropdown-menu">                      
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item" tabindex="-1" href="#">Time Domain</a>
+                                  <ul class="dropdown-menu">
+                                      <li><a class="dropdown-item" onClick="addBlock('statistics')" tabindex="-1" href="#">Statistics</a></li>
+                                      <li><a class="dropdown-item" onClick="addBlock('hjorth')" tabindex="-1" href="#">Hjorth</a></li>
+                                      <li><a class="dropdown-item" onClick="" tabindex="-1" href="#">Fractal</a></li>
+                                  </ul>
+                            </li>    
+                                       
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item" tabindex="-1" href="#">Frecuency Domain</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" onClick="addBloque('fft')" tabindex="-1" href="#"> FFT</a></li>
+                                        <li><a class="dropdown-item" onClick="addBloque('psd')" tabindex="-1" href="#">PSD Welch</a></li>
+                                        <li><a class="dropdown-item" onClick="addBloque('ar')" tabindex="-1" href="#">ARR</a></li>
+                                    </ul>
+                            </li> 
+                         
+                        </li>
+                    </ul>
+                </div>
+                                 
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">               
+                      <li class="nav-item dropdown">
+                          <a class="nav-link dropdown-toggle" id="navbarDropdownEEG" href="#" id="navbarDropdownFeatures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                           Clasificación
+                          </a>
+                          <ul class="dropdown-menu">                      
+                            <li class="dropdown-item">
+                                <a class="dropdown-item" onClick="addBlock('LDA')" tabindex="-1" href="#">LDA</a>   
+                            </li>    
+                            <li class="dropdown-item">
+                                <a class="dropdown-item" onClick="addBloque('svm')" tabindex="-1" href="#">SVM</a>
+                            </li>    
+                            <li class="dropdown-item">
+                                <a class="dropdown-item" onClick="addBloque('knn')" tabindex="-1" href="#">KNN</a>
+                            </li>                         
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">               
+                      <li class="nav-item dropdown">
+                          <a class="nav-link dropdown-toggle" id="navbarDropdownEEG" href="#" id="navbarDropdownFeatures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                           Validación
+                          </a>
+                          <ul class="dropdown-menu">                      
+                            <li class="dropdown-item">
+                                <a class="dropdown-item" onClick="addBlock('k_fold')" tabindex="-1" href="#">K-Fold Cross Validation</a>   
+                            </li>    
+                            <li class="dropdown-item">
+                                <a class="dropdown-item" onClick="addBloque('hold_out')" tabindex="-1" href="#">Hold-Out</a>
+                            </li>                                                 
+                        </li>
+                    </ul>
+                </div>       
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownEEG" onClick="ejecutar_pipeline()" href="#" id="navbarDropdownFeatures" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Ejecutar Pipeline
+                    </a>                                        
+                </li>
+                
+
+          </ul>
+            </div>
+            
+          </nav>
+
+          <canvas id='pizarra' width="1550" height="400">
+        
+          </canvas>
+
+          <div class='accordion' id='resultados'>
+            
+          </div>
+
+          <div id='editor_json' style="display:none">
+              <label>JSON:</label>
+              <input type='text' id='json_text' size = 150>
+              <input type="button" value="Crear Pipeline" onclick='crear_pipeline()'>
+          </div>
+
+          <div id="config">
+
+          </div>
+    </body>
+
+    <script>
+        var clickDown = 0;
+        var click_line = 0;
+        var bloqueClick = null;
+        var URL = "http://localhost:8080/cgiserver.py";
+        var pipe1 = new pipeline(URL);
+        var bloque1 = null;
+        var bloque2 = null;
+        var estado = [1,1,1]; //Estado de los trials que estamos seleccionado para visualizar
+
+        pipe1.setCanvas(document.getElementById('pizarra'));
+        
+
+        function ejecutar_pipeline()
+        {
+            //Funcion que ejecuta la pipeline
+            pipe1.execute();
+        }
+
+        function addBlock(tipo)
+        {         
+          pipe1.addBlock(tipo);
+          pipe1.drawPipeline();
+          pipe1.setState(estado);
+        }
+
+        function delete_Block()
+        {
+            pipe1.deleteBlock(bloqueClick);
+            pipe1.erasePipeline();
+            pipe1.drawPipeline();
+        }
+
+        function options()
+        {
+            bloqueClick.options();
+        }
+
+        function viewSignals()
+        {   
+            bloqueClick.setParamsView(estado);
+            bloqueClick.block_process();
+        }
+
+        function viewSignalsLoads()
+        {
+            console.log('VIEW_MAIN');
+            var num_sujeto = parseInt($("#sujeto")[0].selectedIndex);
+            var num_trial = parseInt($("#trial")[0].selectedIndex);
+            var canal = parseInt($("#channel")[0].selectedIndex);
+            
+            if(num_sujeto!=0)
+                estado[0] = num_sujeto;
+            if(num_trial!=0)
+                estado[1] = num_trial;
+            if(canal!=0)
+                estado[2] = canal;
+
+            pipe1.setState(estado);
+            bloqueClick.setParamsView(estado);
+            bloqueClick.block_process();
+        }
+
+        function saveOptions()
+        {
+            bloqueClick.saveOptions();
+            //Debemos añadir en la pipeline el numero de sujetos
+            pipe1.setSujetos(bloqueClick.getSujetos());
+        }
+        
+
+        function saveOptionsPipe()
+        {
+            //bloqueClick.saveOptions();
+            //Debemos añadir en la pipeline el numero de sujetos
+            pipe1.createJSON();
+            pipe1.transmitir_json(pipe1.getJSON());
+
+        }
+
+        function mostrarSujetos()
+        {
+            var opcion = parseInt($("#database")[0].selectedIndex);
+
+            if(opcion == 0)
+            {
+                //Database IIIa
+                var contenido = "<div> Sujeto : </div>";
+                contenido = contenido.concat("<select name='sujeto' id='db_sujeto'>");
+                contenido = contenido.concat("<optgroup>");
+                contenido = contenido.concat("<option value='1' label='k3b'></option>");
+                contenido = contenido.concat("<option value='2' label='k6b'></option>");
+                contenido = contenido.concat("<option value='3' label='l1b'></option>");
+                contenido = contenido.concat("</optgroup>");
+                contenido = contenido.concat("</select>");
+
+
+               $("#sujetos_modal").append(contenido);
+            }
+        }
+
+
+        document.oncontextmenu = function(){return false}
+
+        $("#pizarra").mousedown(function(mouse){ 
+            //Estamos dentro de un bloque 
+
+            if(mouse.which == 3)
+            {
+                //Es el boton derecho del mouse
+                var x = mouse.pageX;
+                var y = mouse.pageY-83; //83 es el rectificador, posicion donde esta el canvas con respecto a la pantalla 
+                                
+                bloqueClick = pipe1.getBlock(x,y);   
+                if(bloqueClick!=null){ 
+                    //Estamos dentro de un bloque, desplegamos el menu 
+                    //Desplegamos el menu del bloque
+
+                    let menu = document.createElement("div")
+                    menu.id = "ctxmenu"
+                    menu.style = `top:${mouse.pageY-5}px;left:${mouse.pageX-5}px`
+                    menu.onmouseleave = () => ctxmenu.outerHTML = ''
+                    menu.innerHTML = "<p onClick='options()'>Opciones</p><p onClick='viewSignals()'>Signals</p><p>Duplicar</p><p onClick='delete_Block()'>Borrar</p>"
+                    document.body.appendChild(menu)                                        
+                }                            
+            }
+            else
+            {
+                var x = mouse.pageX;
+                var y = mouse.pageY-83; //83 es el rectificador, posicion donde esta el canvas con respecto a la pantalla      
+                
+                if(click_line == 1)
+                {
+                    //Dibujamos la linea, estamos en el segundo bloque
+                    bloqueClick = pipe1.getBlock(x,y);
+                    bloque2 = bloqueClick;
+                    pipe1.drawLine(bloque1, bloque2);
+                    click_line = 0;
+                }
+                else
+                {
+                    bloqueClick = pipe1.getBlock(x,y);   
+                    if(bloqueClick!=null){   
+                        bloqueClick.text();
+                        clickDown = 1;
+                        click_line = 1;
+                        bloque1 = bloqueClick;
+                    } 
+                }
+        }  
+        });  
+
+        $("#pizarra").mousemove(function(mouse){
+            //Tenemos que ir redibujango el bloque que estamos moviendo
+
+            if(clickDown == 1)
+            {
+                var x = mouse.pageX-25;
+                var y = mouse.pageY-95; //83 es el rectificador, posicion donde esta el canvas con respecto a la pantalla 
+
+                bloqueClick.moveBlock(x,y);
+                pipe1.erasePipeline();
+                pipe1.drawPipeline();
+                click_line = 0;
+            }
+                         
+        });
+
+        $("#pizarra").mouseup(function(mouse){ 
+            //Estamos dentro de un bloque 
+            clickDown = 0;         
+            pipe1.showPipeline();      
+        });  
+
+    </script>
+</html>
